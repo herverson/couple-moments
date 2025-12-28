@@ -4,10 +4,9 @@ import { useCouple } from "@/hooks/useCouple";
 import { supabase } from "@/lib/supabase";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { YoutubeGallery } from "@/components/YoutubeGallery";
-import { RomanticPhrases } from "@/components/RomanticPhrases";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, LogOut, Mail, Lock, Eye } from "lucide-react";
+import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 
@@ -251,57 +250,65 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-rose-200 dark:border-rose-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <Heart className="text-rose-500 mr-2" size={32} />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Couple Moments - Admin
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            {couple && (
-              <>
-                {/* Primary button with JavaScript navigation */}
+      {/* Modern Header */}
+      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg shadow-lg border-b-2 border-rose-300 dark:border-rose-700 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo & Title */}
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-rose-500 to-pink-500 p-2 rounded-xl shadow-md">
+                <Heart className="text-white" size={24} fill="white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Couple Moments
+                </h1>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                  Painel Admin
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              {couple && (
                 <Button
-                  variant="default"
                   onClick={(e) => {
                     e.preventDefault();
-                    console.log("[DEBUG] Button clicked!");
-                    console.log("[DEBUG] Current location:", window.location.href);
-                    console.log("[DEBUG] Attempting to navigate to /couple/" + couple.id);
-                    
-                    // Try wouter first
                     setLocation(`/couple/${couple.id}`);
-                    
-                    // Fallback after 200ms if wouter doesn't work
                     setTimeout(() => {
                       if (!window.location.pathname.includes("/couple/")) {
-                        console.log("[DEBUG] wouter didn't work, using native navigation");
                         window.location.href = `/couple/${couple.id}`;
                       }
                     }, 200);
                   }}
-                  className="bg-rose-500 hover:bg-rose-600 cursor-pointer"
+                  className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all"
+                  size="sm"
                 >
                   <Eye className="mr-2 h-4 w-4" />
-                  View Couple Page
+                  Ver Página
                 </Button>
-              </>
-            )}
-            {user && (
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {user.email}
-              </div>
-            )}
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
+              )}
+              
+              {user && (
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-950 rounded-lg border border-rose-200 dark:border-rose-800">
+                  <User className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {user.email?.split('@')[0]}
+                  </span>
+                </div>
+              )}
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Sair</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -315,37 +322,74 @@ export default function Home() {
           </div>
         ) : couple ? (
           <div className="space-y-8">
-            {/* Admin Dashboard Header */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 border-2 border-rose-300 dark:border-rose-700">
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-rose-100 dark:bg-rose-900 rounded-full flex items-center justify-center">
-                  <Heart className="text-rose-500 w-8 h-8" />
+            {/* Modern Admin Dashboard Header */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950 dark:to-pink-950 rounded-3xl shadow-xl p-8 border-2 border-rose-300 dark:border-rose-700">
+              {/* Decorative background */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-rose-200 dark:bg-rose-900 rounded-full blur-3xl opacity-30 -mr-32 -mt-32"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-200 dark:bg-pink-900 rounded-full blur-3xl opacity-30 -ml-32 -mb-32"></div>
+              
+              <div className="relative text-center space-y-6">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-12 hover:rotate-0 transition-transform">
+                  <Heart className="text-white w-10 h-10" fill="white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {couple.couple_name || "Admin Dashboard"}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                  Manage your couple's content here. Add photos, videos, and romantic phrases. 
-                  When you're ready to view the beautiful page, click "View Couple Page" above.
-                </p>
-                <div className="flex items-center justify-center gap-4 pt-4">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Photos</p>
-                    <p className="text-2xl font-bold text-rose-600">{photos.length}</p>
+                
+                <div>
+                  <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {couple.couple_name || "Bia & Herver"}
+                  </h2>
+                  <p className="text-lg text-gray-700 dark:text-gray-300">
+                    Gerencie seu espaço romântico
+                  </p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-4">
+                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
+                    <div className="text-3xl font-bold text-rose-600 dark:text-rose-400 mb-1">
+                      {photos.length}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                      Fotos
+                    </div>
                   </div>
-                  <div className="h-12 w-px bg-gray-300 dark:bg-gray-600"></div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Videos</p>
-                    <p className="text-2xl font-bold text-rose-600">{videos.length}</p>
+                  
+                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
+                    <div className="text-3xl font-bold text-rose-600 dark:text-rose-400 mb-1">
+                      {videos.length}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                      Vídeos
+                    </div>
                   </div>
-                  <div className="h-12 w-px bg-gray-300 dark:bg-gray-600"></div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Started</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {new Date(couple.relationship_start_date).toLocaleDateString('pt-BR')}
-                    </p>
+                  
+                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
+                    <div className="text-lg font-bold text-rose-600 dark:text-rose-400 mb-1">
+                      {new Date(couple.relationship_start_date).toLocaleDateString('pt-BR', { 
+                        day: '2-digit', 
+                        month: 'short' 
+                      })}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                      Início
+                    </div>
                   </div>
                 </div>
+
+                {/* Quick Action */}
+                {couple && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigator.clipboard.writeText(`${window.location.origin}/couple/${couple.id}`);
+                      toast.success("Link copiado! Compartilhe com quem você ama 💕");
+                    }}
+                    variant="outline"
+                    className="mt-4 border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
+                  >
+                    <Link2 className="mr-2 h-4 w-4" />
+                    Copiar Link Público
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -371,11 +415,6 @@ export default function Home() {
                   onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
                   isLoading={loadingVideos}
                 />
-              </section>
-
-              {/* Phrases Management */}
-              <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                <RomanticPhrases showAddButton={true} />
               </section>
             </div>
           </div>

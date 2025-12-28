@@ -3,9 +3,8 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useCouple } from "@/hooks/useCouple";
 import { supabase } from "@/lib/supabase";
 import { RelationshipTimer } from "@/components/RelationshipTimer";
-import { RomanticPhrases } from "@/components/RomanticPhrases";
 import { Button } from "@/components/ui/button";
-import { Heart, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { Heart, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Share2, User } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, useRoute } from "wouter";
 
@@ -79,19 +78,13 @@ export default function CouplePage() {
   }, []);
 
   useEffect(() => {
-    console.log("[CouplePage] UUID from URL:", coupleUuid);
-    
+    // Não bloqueia se não tiver UUID - só retorna silenciosamente
     if (!coupleUuid) {
-      console.log("[CouplePage] No UUID provided");
-      toast.error("Invalid couple link");
-      setLocation("/");
       return;
     }
 
     const fetchCoupleByUuid = async () => {
       try {
-        console.log("[CouplePage] Fetching couple by UUID:", coupleUuid);
-        
         const { data, error } = await supabase
           .from("couples")
           .select("*")
@@ -100,21 +93,15 @@ export default function CouplePage() {
 
         if (error) {
           console.error("[CouplePage] Error fetching couple:", error);
-          if (error.code === "PGRST116") {
-            toast.error("Couple not found");
-            setLocation("/");
-          }
-          throw error;
+          return; // Não redireciona, só retorna
         }
 
         if (data) {
-          console.log("[CouplePage] Couple found:", data);
           setCoupleId(data.id);
           
-          // Check if current user is owner
+          // Check if current user is owner (optional, doesn't block access)
           if (user && (data.user1_id === user.id || data.user2_id === user.id)) {
             setIsOwner(true);
-            console.log("[CouplePage] User is owner");
           }
           
           await fetchPhotos(data.id);
@@ -126,7 +113,7 @@ export default function CouplePage() {
     };
 
     fetchCoupleByUuid();
-  }, [coupleUuid, user, setLocation, fetchPhotos, fetchVideos]);
+  }, [coupleUuid, user, fetchPhotos, fetchVideos]);
 
   const handleLogout = useCallback(async () => {
     await signOut();
@@ -182,49 +169,67 @@ export default function CouplePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-rose-200 dark:border-rose-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            {isOwner && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLocation("/")}
-                className="mr-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Admin
-              </Button>
-            )}
-            <Heart className="text-rose-500 mr-2" size={32} />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {couple.couple_name || "Couple Moments"}
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={handleShare}
-              className="bg-rose-50 hover:bg-rose-100 border-rose-300"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartilhar
-            </Button>
-            {isOwner && user && (
-              <>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {user.email}
-                </div>
+      {/* Modern Header */}
+      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg shadow-lg border-b-2 border-rose-300 dark:border-rose-700 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo & Title */}
+            <div className="flex items-center gap-3">
+              {isOwner && (
                 <Button
-                  variant="outline"
-                  onClick={handleLogout}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation("/")}
+                  className="hover:bg-rose-50 dark:hover:bg-rose-950 -ml-2"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sair
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Admin</span>
                 </Button>
-              </>
-            )}
+              )}
+              <div className="bg-gradient-to-br from-rose-500 to-pink-500 p-2 rounded-xl shadow-md">
+                <Heart className="text-white" size={24} fill="white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {couple.couple_name || "Couple Moments"}
+                </h1>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                  Nosso Espaço Romântico
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleShare}
+                className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all"
+                size="sm"
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Compartilhar</span>
+              </Button>
+              
+              {isOwner && user && (
+                <>
+                  <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-950 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <User className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {user.email?.split('@')[0]}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Sair</span>
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -232,24 +237,29 @@ export default function CouplePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="space-y-12">
-          {/* Welcome Section */}
-          <div className="text-center space-y-2 mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
-              {couple.couple_name || "Welcome"}
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Your private space to celebrate your love 💕
-            </p>
+          {/* Modern Welcome Banner */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950 dark:to-pink-950 rounded-3xl shadow-xl p-12 border-2 border-rose-300 dark:border-rose-700">
+            {/* Decorative background */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-rose-200 dark:bg-rose-900 rounded-full blur-3xl opacity-30 -mr-48 -mt-48"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-200 dark:bg-pink-900 rounded-full blur-3xl opacity-30 -ml-48 -mb-48"></div>
+            
+            <div className="relative text-center space-y-4">
+              <div className="inline-flex items-center justify-center gap-3 mb-4">
+                <Heart className="text-rose-500" size={40} fill="currentColor" />
+                <h2 className="text-5xl font-bold text-gray-900 dark:text-white">
+                  {couple.couple_name || "Bem-vindos"}
+                </h2>
+                <Heart className="text-rose-500" size={40} fill="currentColor" />
+              </div>
+              <p className="text-2xl text-gray-700 dark:text-gray-300 font-light">
+                Seu espaço privado para celebrar o amor 💕
+              </p>
+            </div>
           </div>
 
           {/* Relationship Timer */}
           <section>
             <RelationshipTimer startDate={couple.relationship_start_date} />
-          </section>
-
-          {/* Romantic Phrases */}
-          <section>
-            <RomanticPhrases />
           </section>
 
           {/* Photo Carousel + Gallery */}
