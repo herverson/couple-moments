@@ -3,6 +3,7 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useCouple } from "@/hooks/useCouple";
 import { supabase } from "@/lib/supabase";
 import { RelationshipTimer } from "@/components/RelationshipTimer";
+import { CoupleMemories } from "@/components/CoupleMemories";
 import { Button } from "@/components/ui/button";
 import { Heart, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Share2, User } from "lucide-react";
 import { toast } from "sonner";
@@ -262,6 +263,11 @@ export default function CouplePage() {
             <RelationshipTimer startDate={couple.relationship_start_date} />
           </section>
 
+          {/* Couple Memories / Memorable Phrases */}
+          <section>
+            <CoupleMemories coupleId={couple.id} isAdmin={isOwner} />
+          </section>
+
           {/* Photo Carousel + Gallery */}
           <section>
             <div className="space-y-8">
@@ -286,95 +292,141 @@ export default function CouplePage() {
                 </div>
               ) : (
                 <>
-                  {/* Featured Carousel */}
-                  <div className="relative bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950 dark:to-pink-950 rounded-3xl shadow-2xl border-4 border-rose-200 dark:border-rose-800 p-4 space-y-4">
-                    {/* Image Container */}
-                    <div className="relative w-full aspect-[4/3] bg-black rounded-2xl overflow-hidden">
-                      <img
-                        src={photos[currentPhotoIndex].s3_url}
-                        alt={photos[currentPhotoIndex].description || "Foto do casal"}
-                        className="w-full h-full object-contain"
-                      />
+                  {/* Modern Story-Style Carousel */}
+                  <div className="max-w-2xl mx-auto">
+                    <div className="relative bg-black rounded-3xl overflow-hidden shadow-2xl">
+                      {/* Story Progress Bars */}
+                      {photos.length > 1 && (
+                        <div className="absolute top-0 left-0 right-0 z-20 flex gap-1 p-3">
+                          {photos.map((_, index) => (
+                            <div
+                              key={index}
+                              className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden"
+                            >
+                              <div
+                                className={`h-full bg-white rounded-full transition-all duration-300 ${
+                                  index === currentPhotoIndex ? 'w-full' : index < currentPhotoIndex ? 'w-full' : 'w-0'
+                                }`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Main Image - Full Screen Style */}
+                      <div className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black">
+                        <img
+                          src={photos[currentPhotoIndex].s3_url}
+                          alt={photos[currentPhotoIndex].description || "Foto do casal"}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Gradient Overlay for Text */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
+
+                        {/* Content Over Image */}
+                        <div className="absolute inset-0 flex flex-col justify-between p-6">
+                          {/* Top Info */}
+                          <div className="flex items-center justify-between pt-8">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                                <Heart className="text-white" size={20} fill="white" />
+                              </div>
+                              <div>
+                                <p className="text-white font-bold text-lg drop-shadow-lg">
+                                  {couple.couple_name}
+                                </p>
+                                <p className="text-white/80 text-sm drop-shadow-lg">
+                                  {new Date(photos[currentPhotoIndex].uploaded_at).toLocaleDateString('pt-BR', { 
+                                    day: 'numeric', 
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-white/80 text-sm font-medium drop-shadow-lg">
+                              {currentPhotoIndex + 1}/{photos.length}
+                            </div>
+                          </div>
+
+                          {/* Bottom Caption */}
+                          {photos[currentPhotoIndex].description && (
+                            <div className="space-y-2 pb-4">
+                              <p className="text-white text-2xl font-bold drop-shadow-2xl leading-tight">
+                                {photos[currentPhotoIndex].description}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Navigation Areas (Tap zones like Instagram Stories) */}
+                        {photos.length > 1 && (
+                          <>
+                            <button
+                              onClick={prevPhoto}
+                              className="absolute left-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
+                              aria-label="Foto anterior"
+                            />
+                            <button
+                              onClick={nextPhoto}
+                              className="absolute right-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
+                              aria-label="Próxima foto"
+                            />
+                          </>
+                        )}
+
+                        {/* Arrow Indicators (visible on hover) */}
+                        {photos.length > 1 && (
+                          <>
+                            <button
+                              onClick={prevPhoto}
+                              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
+                              aria-label="Foto anterior"
+                            >
+                              <ChevronLeft className="w-6 h-6" />
+                            </button>
+                            <button
+                              onClick={nextPhoto}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
+                              aria-label="Próxima foto"
+                            >
+                              <ChevronRight className="w-6 h-6" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    
-                    {/* Caption BELOW image (not overlaying) */}
-                    {photos[currentPhotoIndex].description && (
-                      <div className="text-center px-4 py-2">
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                          {photos[currentPhotoIndex].description}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {new Date(photos[currentPhotoIndex].uploaded_at).toLocaleDateString('pt-BR', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric' 
-                          })}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Navigation Buttons */}
-                    {photos.length > 1 && (
-                      <>
-                        <button
-                          onClick={prevPhoto}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 text-gray-900 dark:text-white rounded-full p-3 shadow-lg transition-all hover:scale-110"
-                          aria-label="Previous photo"
-                        >
-                          <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <button
-                          onClick={nextPhoto}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 text-gray-900 dark:text-white rounded-full p-3 shadow-lg transition-all hover:scale-110"
-                          aria-label="Next photo"
-                        >
-                          <ChevronRight className="w-6 h-6" />
-                        </button>
-                      </>
-                    )}
-
-                    {/* Dots Indicator */}
-                    {photos.length > 1 && (
-                      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-                        {photos.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentPhotoIndex(index)}
-                            className={`h-2 rounded-full transition-all ${
-                              index === currentPhotoIndex 
-                                ? 'w-8 bg-white' 
-                                : 'w-2 bg-white/50 hover:bg-white/75'
-                            }`}
-                            aria-label={`Go to photo ${index + 1}`}
-                          />
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Photo Grid - All Photos */}
+                  {/* Thumbnail Grid Below */}
                   {photos.length > 1 && (
-                    <div>
+                    <div className="max-w-4xl mx-auto">
                       <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
                         Todas as Fotos ({photos.length})
                       </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                         {photos.map((photo, index) => (
                           <button
                             key={photo.id}
                             onClick={() => setCurrentPhotoIndex(index)}
-                            className={`relative aspect-square rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-lg ${
+                            className={`relative aspect-square rounded-xl overflow-hidden transition-all hover:scale-105 hover:shadow-xl ${
                               index === currentPhotoIndex 
-                                ? 'ring-4 ring-rose-500 shadow-lg scale-105' 
-                                : 'ring-2 ring-gray-200 dark:ring-gray-700'
+                                ? 'ring-4 ring-rose-500 shadow-xl scale-105' 
+                                : 'ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-rose-300'
                             }`}
                           >
                             <img
                               src={photo.s3_url}
-                              alt={photo.description || `Photo ${index + 1}`}
+                              alt={photo.description || "Miniatura"}
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
+                            {index === currentPhotoIndex && (
+                              <div className="absolute inset-0 bg-rose-500/20 flex items-center justify-center">
+                                <Heart className="text-white w-8 h-8" fill="white" />
+                              </div>
+                            )}
                           </button>
                         ))}
                       </div>

@@ -20,7 +20,10 @@ export const RelationshipTimer = memo(function RelationshipTimer({ startDate }: 
 
   useEffect(() => {
     const calculateTime = () => {
-      const start = new Date(startDate).getTime();
+      // Parse date as YYYY-MM-DD (local date, not UTC)
+      const dateStr = typeof startDate === 'string' ? startDate : startDate.toISOString().split('T')[0];
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const start = new Date(year, month - 1, day, 0, 0, 0, 0).getTime(); // Local midnight
       const now = new Date().getTime();
       const diff = now - start;
 
@@ -108,7 +111,12 @@ export const RelationshipTimer = memo(function RelationshipTimer({ startDate }: 
       </div>
 
       <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-        <p>Juntos desde: {new Date(startDate).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" })}</p>
+        <p>Juntos desde: {(() => {
+          const dateStr = typeof startDate === 'string' ? startDate : startDate.toISOString().split('T')[0];
+          const [year, month, day] = dateStr.split('-').map(Number);
+          const date = new Date(year, month - 1, day);
+          return date.toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });
+        })()}</p>
       </div>
     </div>
   );

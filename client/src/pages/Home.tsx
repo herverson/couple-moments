@@ -4,6 +4,7 @@ import { useCouple } from "@/hooks/useCouple";
 import { supabase } from "@/lib/supabase";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { YoutubeGallery } from "@/components/YoutubeGallery";
+import { CoupleMemories } from "@/components/CoupleMemories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2 } from "lucide-react";
@@ -415,6 +416,11 @@ export default function Home() {
                   onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
                   isLoading={loadingVideos}
                 />
+              </section>
+
+              {/* Couple Memories / Memorable Phrases */}
+              <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
+                <CoupleMemories coupleId={coupleId!} isAdmin={true} />
               </section>
             </div>
           </div>
