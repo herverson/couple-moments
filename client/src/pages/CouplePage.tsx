@@ -4,16 +4,32 @@ import { useCouple } from "@/hooks/useCouple";
 import { supabase } from "@/lib/supabase";
 import { RelationshipTimer } from "@/components/RelationshipTimer";
 import { CoupleMemories } from "@/components/CoupleMemories";
+import { SpotifyGallery } from "@/components/SpotifyGallery";
 import { Button } from "@/components/ui/button";
 import { Heart, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Share2, User } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, useRoute } from "wouter";
+
+// Helper function to format date as local (avoiding timezone issues)
+function formatLocalDate(dateString: string, options?: { month?: 'short' | 'long' }): string {
+  // Parse date as YYYY-MM-DD (local date, not UTC)
+  const dateStr = dateString.split('T')[0]; // Get only YYYY-MM-DD part
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const localDate = new Date(year, month - 1, day, 0, 0, 0, 0); // Local midnight
+  
+  return localDate.toLocaleDateString('pt-BR', { 
+    day: 'numeric', 
+    month: options?.month || 'short',
+    year: 'numeric' 
+  });
+}
 
 interface Photo {
   id: string;
   s3_url: string;
   description?: string;
   uploaded_at: string;
+  photo_date?: string;
 }
 
 interface Video {
@@ -39,6 +55,7 @@ export default function CouplePage() {
   const [, setLocation] = useLocation();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isOwner, setIsOwner] = useState(false);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   const fetchPhotos = useCallback(async (cId: string) => {
     try {
@@ -135,16 +152,20 @@ export default function CouplePage() {
     setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
   }, [photos.length]);
 
-  // Auto-advance carousel every 5 seconds
+  // Auto-advance carousel every 5 seconds (pauses when user taps photo)
   useEffect(() => {
-    if (photos.length === 0) return;
+    if (photos.length === 0 || isCarouselPaused) return;
     
     const interval = setInterval(() => {
       nextPhoto();
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [photos.length, nextPhoto]);
+  }, [photos.length, nextPhoto, isCarouselPaused]);
+
+  const handlePhotoTap = useCallback(() => {
+    setIsCarouselPaused((prev) => !prev);
+  }, []);
 
   if (coupleLoading) {
     return (
@@ -263,6 +284,16 @@ export default function CouplePage() {
             <RelationshipTimer startDate={couple.relationship_start_date} />
           </section>
 
+          {/* Spotify Music Theme */}
+          <section>
+            <SpotifyGallery 
+              coupleId={couple.id} 
+              isAdmin={isOwner}
+              onTrackAdded={() => {}}
+              onTrackDeleted={() => {}}
+            />
+          </section>
+
           {/* Couple Memories / Memorable Phrases */}
           <section>
             <CoupleMemories coupleId={couple.id} isAdmin={isOwner} />
@@ -314,15 +345,19 @@ export default function CouplePage() {
                       )}
 
                       {/* Main Image - Full Screen Style */}
-                      <div className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black">
+                      <div 
+                        className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black cursor-pointer"
+                        onClick={handlePhotoTap}
+                        onTouchStart={handlePhotoTap}
+                      >
                         <img
                           src={photos[currentPhotoIndex].s3_url}
                           alt={photos[currentPhotoIndex].description || "Foto do casal"}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
                         
                         {/* Gradient Overlay for Text */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
 
                         {/* Content Over Image */}
                         <div className="absolute inset-0 flex flex-col justify-between p-6">
@@ -337,11 +372,10 @@ export default function CouplePage() {
                                   {couple.couple_name}
                                 </p>
                                 <p className="text-white/80 text-sm drop-shadow-lg">
-                                  {new Date(photos[currentPhotoIndex].uploaded_at).toLocaleDateString('pt-BR', { 
-                                    day: 'numeric', 
-                                    month: 'short',
-                                    year: 'numeric'
-                                  })}
+                                  {photos[currentPhotoIndex].photo_date
+                                    ? formatLocalDate(photos[currentPhotoIndex].photo_date)
+                                    : formatLocalDate(photos[currentPhotoIndex].uploaded_at)
+                                  }
                                 </p>
                               </div>
                             </div>
@@ -364,12 +398,26 @@ export default function CouplePage() {
                         {photos.length > 1 && (
                           <>
                             <button
-                              onClick={prevPhoto}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                prevPhoto();
+                              }}
+                              onTouchStart={(e) => {
+                                e.stopPropagation();
+                                prevPhoto();
+                              }}
                               className="absolute left-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
                               aria-label="Foto anterior"
                             />
                             <button
-                              onClick={nextPhoto}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextPhoto();
+                              }}
+                              onTouchStart={(e) => {
+                                e.stopPropagation();
+                                nextPhoto();
+                              }}
                               className="absolute right-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
                               aria-label="Próxima foto"
                             />
@@ -380,14 +428,20 @@ export default function CouplePage() {
                         {photos.length > 1 && (
                           <>
                             <button
-                              onClick={prevPhoto}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                prevPhoto();
+                              }}
                               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
                               aria-label="Foto anterior"
                             >
                               <ChevronLeft className="w-6 h-6" />
                             </button>
                             <button
-                              onClick={nextPhoto}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextPhoto();
+                              }}
                               className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
                               aria-label="Próxima foto"
                             >
@@ -492,11 +546,7 @@ export default function CouplePage() {
                         )}
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600 dark:text-gray-400">
-                            {new Date(video.added_at).toLocaleDateString('pt-BR', { 
-                              day: 'numeric', 
-                              month: 'long', 
-                              year: 'numeric' 
-                            })}
+                            {formatLocalDate(video.added_at, { month: 'long' })}
                           </span>
                           <span className="text-rose-500 font-medium">
                             ♫

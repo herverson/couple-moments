@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { YoutubeGallery } from "@/components/YoutubeGallery";
 import { CoupleMemories } from "@/components/CoupleMemories";
+import { SpotifyGallery } from "@/components/SpotifyGallery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2 } from "lucide-react";
@@ -16,6 +17,7 @@ interface Photo {
   s3_url: string;
   description?: string;
   uploaded_at: string;
+  photo_date?: string;
 }
 
 interface Video {
@@ -36,7 +38,7 @@ export default function Home() {
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [, setLocation] = useLocation();
-  
+
   // Login/Signup state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -168,15 +170,15 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center space-y-4 mb-8">
-            <div className="flex items-center justify-center">
-              <Heart className="text-rose-500 mr-2" size={48} />
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-                Couple Moments
-              </h1>
-            </div>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Celebrate your love story together
-            </p>
+          <div className="flex items-center justify-center">
+            <Heart className="text-rose-500 mr-2" size={48} />
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              Couple Moments
+            </h1>
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            Celebrate your love story together
+          </p>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-rose-200 dark:border-rose-800">
@@ -225,14 +227,14 @@ export default function Home() {
                 )}
               </div>
 
-              <Button
+          <Button
                 type="submit"
                 className="w-full bg-rose-500 hover:bg-rose-600"
-                size="lg"
+            size="lg"
                 disabled={isLoading}
-              >
+          >
                 {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
-              </Button>
+          </Button>
             </form>
 
             <div className="mt-6 text-center">
@@ -262,12 +264,12 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Couple Moments
-                </h1>
+              Couple Moments
+            </h1>
                 <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
                   Painel Admin
                 </p>
-              </div>
+          </div>
             </div>
 
             {/* Actions */}
@@ -291,24 +293,24 @@ export default function Home() {
                 </Button>
               )}
               
-              {user && (
+            {user && (
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-950 rounded-lg border border-rose-200 dark:border-rose-800">
                   <User className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {user.email?.split('@')[0]}
                   </span>
-                </div>
-              )}
+              </div>
+            )}
               
-              <Button
-                variant="outline"
+            <Button
+              variant="outline"
                 size="sm"
-                onClick={handleLogout}
+              onClick={handleLogout}
                 className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
+            >
+              <LogOut className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Sair</span>
-              </Button>
+            </Button>
             </div>
           </div>
         </div>
@@ -337,11 +339,11 @@ export default function Home() {
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                     {couple.couple_name || "Bia & Herver"}
-                  </h2>
+              </h2>
                   <p className="text-lg text-gray-700 dark:text-gray-300">
                     Gerencie seu espaço romântico
-                  </p>
-                </div>
+              </p>
+            </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-4">
@@ -398,23 +400,33 @@ export default function Home() {
             <div className="grid gap-6">
               {/* Photo Management */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                <PhotoGallery
-                  photos={photos}
-                  coupleId={coupleId!}
-                  onPhotoAdded={() => coupleId && fetchPhotos(coupleId)}
-                  onPhotoDeleted={() => coupleId && fetchPhotos(coupleId)}
-                  isLoading={loadingPhotos}
-                />
-              </section>
+              <PhotoGallery
+                photos={photos}
+                coupleId={coupleId!}
+                onPhotoAdded={() => coupleId && fetchPhotos(coupleId)}
+                onPhotoDeleted={() => coupleId && fetchPhotos(coupleId)}
+                isLoading={loadingPhotos}
+              />
+            </section>
 
               {/* Video Management */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                <YoutubeGallery
-                  videos={videos}
-                  coupleId={coupleId!}
-                  onVideoAdded={() => coupleId && fetchVideos(coupleId)}
-                  onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
-                  isLoading={loadingVideos}
+              <YoutubeGallery
+                videos={videos}
+                coupleId={coupleId!}
+                onVideoAdded={() => coupleId && fetchVideos(coupleId)}
+                onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
+                isLoading={loadingVideos}
+              />
+            </section>
+
+              {/* Spotify Music Theme */}
+              <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
+                <SpotifyGallery 
+                  coupleId={coupleId!} 
+                  isAdmin={true}
+                  onTrackAdded={() => {}}
+                  onTrackDeleted={() => {}}
                 />
               </section>
 
@@ -436,14 +448,14 @@ export default function Home() {
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
                   Start your journey together by creating a couple profile. Add your relationship start date, couple name, and begin sharing memories!
-                </p>
-                <Button
-                  onClick={() => setLocation("/create-couple")}
-                  size="lg"
+            </p>
+            <Button
+              onClick={() => setLocation("/create-couple")}
+              size="lg"
                   className="w-full bg-rose-500 hover:bg-rose-600 h-12 text-lg"
-                >
+            >
                   Create Couple Profile 💕
-                </Button>
+            </Button>
               </div>
             </div>
           </div>

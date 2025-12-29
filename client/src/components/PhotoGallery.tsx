@@ -5,11 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
+// Helper function to format date as local (avoiding timezone issues)
+function formatLocalDate(dateString: string): string {
+  // Parse date as YYYY-MM-DD (local date, not UTC)
+  const dateStr = dateString.split('T')[0]; // Get only YYYY-MM-DD part
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const localDate = new Date(year, month - 1, day, 0, 0, 0, 0); // Local midnight
+  
+  return localDate.toLocaleDateString('pt-BR', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  });
+}
+
 interface Photo {
   id: string;
   s3_url: string;
   description?: string;
   uploaded_at: string;
+  photo_date?: string;
 }
 
 interface PhotoGalleryProps {
@@ -32,12 +47,16 @@ export const PhotoGallery = memo(function PhotoGallery({
   const [showDialog, setShowDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
+  const [photoDate, setPhotoDate] = useState("");
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setDescription("");
+      // Set default date to today
+      const today = new Date().toISOString().split('T')[0];
+      setPhotoDate(today);
       setShowDialog(true);
     }
     e.target.value = ''; // Reset input
@@ -96,6 +115,7 @@ export const PhotoGallery = memo(function PhotoGallery({
           s3_key: uploadData.path,
           s3_url: publicUrl,
           description: description.trim() || null,
+          photo_date: photoDate || null,
         })
         .select();
 
@@ -110,6 +130,7 @@ export const PhotoGallery = memo(function PhotoGallery({
       setShowDialog(false);
       setSelectedFile(null);
       setDescription("");
+      setPhotoDate("");
       onPhotoAdded?.();
     } catch (error) {
       console.error("[DEBUG] Upload error:", error);
@@ -125,12 +146,28 @@ export const PhotoGallery = memo(function PhotoGallery({
       
       const { supabase } = await import("@/lib/supabase");
       
-      // Get photo info first
-      const { data: photo } = await supabase
+      // Get photo info first (need s3_key to delete from storage)
+      const { data: photo, error: fetchError } = await supabase
         .from('photos')
-        .select('s3_url')
+        .select('s3_key, s3_url')
         .eq('id', photoId)
         .single();
+
+      if (fetchError) throw fetchError;
+
+      // Delete from storage first (before deleting from database)
+      if (photo?.s3_key) {
+        const { error: storageError } = await supabase.storage
+          .from('couple-photos')
+          .remove([photo.s3_key]);
+
+        if (storageError) {
+          console.warn("[DEBUG] Storage delete error (continuing anyway):", storageError);
+          // Continue even if storage delete fails (file might not exist)
+        } else {
+          console.log("[DEBUG] File deleted from storage:", photo.s3_key);
+        }
+      }
 
       // Delete from database
       const { error: dbError } = await supabase
@@ -140,21 +177,11 @@ export const PhotoGallery = memo(function PhotoGallery({
 
       if (dbError) throw dbError;
 
-      // Try to delete from storage (optional, won't fail if already deleted)
-      if (photo?.s3_url) {
-        const pathMatch = photo.s3_url.match(/couple-photos\/(.+)$/);
-        if (pathMatch) {
-          await supabase.storage
-            .from('couple-photos')
-            .remove([pathMatch[1]]);
-        }
-      }
-
-      toast.success("Photo deleted successfully!");
+      toast.success("Foto deletada com sucesso!");
       onPhotoDeleted?.();
     } catch (error) {
       console.error("[DEBUG] Delete error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete photo");
+      toast.error(error instanceof Error ? error.message : "Falha ao deletar foto");
     } finally {
       setDeleting(null);
     }
@@ -208,18 +235,33 @@ export const PhotoGallery = memo(function PhotoGallery({
               
               <div>
                 <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  Caption / Description
+                  Data da Foto
+                </label>
+                <Input
+                  type="date"
+                  value={photoDate}
+                  onChange={(e) => setPhotoDate(e.target.value)}
+                  className="bg-white dark:bg-slate-900 border-rose-300 dark:border-rose-600 focus:border-rose-500 dark:focus:border-rose-400"
+                />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  Quando esta foto foi tirada?
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                  Legenda / Descrição
                 </label>
                 <Input
                   type="text"
-                  placeholder="Ex: Our first trip together ✈️"
+                  placeholder="Ex: Nossa primeira viagem juntos ✈️"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   maxLength={200}
                   className="bg-white dark:bg-slate-900 border-rose-300 dark:border-rose-600 focus:border-rose-500 dark:focus:border-rose-400"
                 />
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Add a special caption to this memory
+                  Adicione uma legenda especial para esta memória
                 </p>
               </div>
 
@@ -229,6 +271,7 @@ export const PhotoGallery = memo(function PhotoGallery({
                     setShowDialog(false);
                     setSelectedFile(null);
                     setDescription("");
+                    setPhotoDate("");
                   }}
                   variant="outline"
                   className="flex-1"
@@ -290,11 +333,10 @@ export const PhotoGallery = memo(function PhotoGallery({
                 )}
                 <div className="flex items-center justify-between pt-2">
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(photo.uploaded_at).toLocaleDateString('pt-BR', { 
-                      day: '2-digit', 
-                      month: 'short', 
-                      year: 'numeric' 
-                    })}
+                    {photo.photo_date 
+                      ? formatLocalDate(photo.photo_date)
+                      : formatLocalDate(photo.uploaded_at)
+                    }
                   </p>
                   <Button
                     variant="ghost"
