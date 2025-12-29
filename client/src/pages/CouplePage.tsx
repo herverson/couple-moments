@@ -305,7 +305,7 @@ export default function CouplePage() {
               <div className="flex items-center justify-center">
                 <Heart className="text-rose-500 mr-2" size={32} fill="currentColor" />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossas Memórias ❤️
+                  ❤️ Nossas memórias ❤️
                 </h3>
                 <Heart className="text-rose-500 ml-2" size={32} fill="currentColor" />
               </div>
@@ -497,7 +497,7 @@ export default function CouplePage() {
               <div className="flex items-center justify-center">
                 <Heart className="text-rose-500 mr-2" size={32} fill="currentColor" />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossa Trilha Sonora ❤️
+                  ❤️ Nossa trilha sonora ❤️
                 </h3>
                 <Heart className="text-rose-500 ml-2" size={32} fill="currentColor" />
               </div>
