@@ -55,7 +55,6 @@ export default function CouplePage() {
   const [, setLocation] = useLocation();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isOwner, setIsOwner] = useState(false);
-  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   const fetchPhotos = useCallback(async (cId: string) => {
     try {
@@ -152,20 +151,16 @@ export default function CouplePage() {
     setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
   }, [photos.length]);
 
-  // Auto-advance carousel every 5 seconds (pauses when user taps photo)
+  // Auto-advance carousel every 5 seconds
   useEffect(() => {
-    if (photos.length === 0 || isCarouselPaused) return;
+    if (photos.length === 0) return;
     
     const interval = setInterval(() => {
       nextPhoto();
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [photos.length, nextPhoto, isCarouselPaused]);
-
-  const handlePhotoTap = useCallback(() => {
-    setIsCarouselPaused((prev) => !prev);
-  }, []);
+  }, [photos.length, nextPhoto]);
 
   if (coupleLoading) {
     return (
@@ -345,11 +340,7 @@ export default function CouplePage() {
                       )}
 
                       {/* Main Image - Full Screen Style */}
-                      <div 
-                        className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black cursor-pointer"
-                        onClick={handlePhotoTap}
-                        onTouchStart={handlePhotoTap}
-                      >
+                      <div className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black">
                         <img
                           src={photos[currentPhotoIndex].s3_url}
                           alt={photos[currentPhotoIndex].description || "Foto do casal"}
@@ -360,7 +351,7 @@ export default function CouplePage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
 
                         {/* Content Over Image */}
-                        <div className="absolute inset-0 flex flex-col justify-between p-6">
+                        <div className="absolute inset-0 flex flex-col justify-between p-6 pointer-events-none">
                           {/* Top Info */}
                           <div className="flex items-center justify-between pt-8">
                             <div className="flex items-center gap-3">
@@ -398,26 +389,12 @@ export default function CouplePage() {
                         {photos.length > 1 && (
                           <>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                prevPhoto();
-                              }}
-                              onTouchStart={(e) => {
-                                e.stopPropagation();
-                                prevPhoto();
-                              }}
+                              onClick={prevPhoto}
                               className="absolute left-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
                               aria-label="Foto anterior"
                             />
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                nextPhoto();
-                              }}
-                              onTouchStart={(e) => {
-                                e.stopPropagation();
-                                nextPhoto();
-                              }}
+                              onClick={nextPhoto}
                               className="absolute right-0 top-0 bottom-0 w-1/3 z-10 focus:outline-none active:bg-white/10 transition-colors"
                               aria-label="Próxima foto"
                             />
@@ -428,20 +405,14 @@ export default function CouplePage() {
                         {photos.length > 1 && (
                           <>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                prevPhoto();
-                              }}
+                              onClick={prevPhoto}
                               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
                               aria-label="Foto anterior"
                             >
                               <ChevronLeft className="w-6 h-6" />
                             </button>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                nextPhoto();
-                              }}
+                              onClick={nextPhoto}
                               className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full p-3 shadow-xl transition-all hover:scale-110 opacity-0 hover:opacity-100 z-20"
                               aria-label="Próxima foto"
                             >
