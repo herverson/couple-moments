@@ -326,19 +326,19 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              Couple Moments
-            </h1>
+                  Couple Moments
+                </h1>
                 <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
                   Painel Admin
                 </p>
-          </div>
+              </div>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-3">
               {couple && (
                 <Button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.preventDefault();
                     setLocation(`/couple/${couple.id}`);
                     setTimeout(() => {
@@ -354,25 +354,25 @@ export default function Home() {
                   Ver Página
                 </Button>
               )}
-              
-            {user && (
+
+              {user && (
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-950 rounded-lg border border-rose-200 dark:border-rose-800">
                   <User className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {user.email?.split('@')[0]}
+                    {user.email?.split("@")[0]}
                   </span>
-              </div>
-            )}
-              
-            <Button
-              variant="outline"
+                </div>
+              )}
+
+              <Button
+                variant="outline"
                 size="sm"
-              onClick={handleLogout}
+                onClick={handleLogout}
                 className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
+              >
+                <LogOut className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Sair</span>
-            </Button>
+              </Button>
             </div>
           </div>
         </div>
@@ -383,7 +383,9 @@ export default function Home() {
         {coupleLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Carregando seu perfil de casal...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Carregando seu perfil de casal...
+            </p>
           </div>
         ) : couple ? (
           <div className="space-y-8">
@@ -392,23 +394,23 @@ export default function Home() {
               {/* Decorative background */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-rose-200 dark:bg-rose-900 rounded-full blur-3xl opacity-30 -mr-32 -mt-32"></div>
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-200 dark:bg-pink-900 rounded-full blur-3xl opacity-30 -ml-32 -mb-32"></div>
-              
+
               <div className="relative text-center space-y-6">
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-12 hover:rotate-0 transition-transform">
                   <Heart className="text-white w-10 h-10" fill="white" />
                 </div>
-                
+
                 <div className="w-full max-w-2xl mx-auto">
                   {isEditingName ? (
                     <div className="flex flex-col sm:flex-row items-center gap-3 justify-center mb-2">
                       <Input
                         type="text"
                         value={editedCoupleName}
-                        onChange={(e) => setEditedCoupleName(e.target.value)}
+                        onChange={e => setEditedCoupleName(e.target.value)}
                         placeholder="Nome do casal"
                         className="text-2xl sm:text-4xl font-bold text-center bg-white dark:bg-slate-800 border-2 border-rose-500 py-2 px-4"
                         autoFocus
-                        onKeyDown={(e) => {
+                        onKeyDown={e => {
                           if (e.key === "Enter") {
                             handleSaveCoupleName();
                           } else if (e.key === "Escape") {
@@ -470,7 +472,7 @@ export default function Home() {
                       Fotos
                     </div>
                   </div>
-                  
+
                   <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
                     <div className="text-3xl font-bold text-rose-600 dark:text-rose-400 mb-1">
                       {videos.length}
@@ -479,10 +481,10 @@ export default function Home() {
                       Vídeos
                     </div>
                   </div>
-                  
+
                   <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
                     <div className="text-lg font-bold text-rose-600 dark:text-rose-400 mb-1">
-                      {formatLocalDate(couple.relationship_start_date, { month: 'long' })}
+                      {formatLocalDate(couple.relationship_start_date, { month: 'short' })}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                       Início
@@ -493,10 +495,14 @@ export default function Home() {
                 {/* Quick Action */}
                 {couple && (
                   <Button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.preventDefault();
-                      navigator.clipboard.writeText(`${window.location.origin}/couple/${couple.id}`);
-                      toast.success("Link copiado! Compartilhe com quem você ama 💕");
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/couple/${couple.id}`
+                      );
+                      toast.success(
+                        "Link copiado! Compartilhe com quem você ama 💕"
+                      );
                     }}
                     variant="outline"
                     className="mt-4 border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 dark:hover:bg-rose-950"
@@ -512,30 +518,30 @@ export default function Home() {
             <div className="grid gap-6">
               {/* Photo Management */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-              <PhotoGallery
-                photos={photos}
-                coupleId={coupleId!}
-                onPhotoAdded={() => coupleId && fetchPhotos(coupleId)}
-                onPhotoDeleted={() => coupleId && fetchPhotos(coupleId)}
-                isLoading={loadingPhotos}
-              />
-            </section>
+                <PhotoGallery
+                  photos={photos}
+                  coupleId={coupleId!}
+                  onPhotoAdded={() => coupleId && fetchPhotos(coupleId)}
+                  onPhotoDeleted={() => coupleId && fetchPhotos(coupleId)}
+                  isLoading={loadingPhotos}
+                />
+              </section>
 
               {/* Video Management */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-              <YoutubeGallery
-                videos={videos}
-                coupleId={coupleId!}
-                onVideoAdded={() => coupleId && fetchVideos(coupleId)}
-                onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
-                isLoading={loadingVideos}
-              />
-            </section>
+                <YoutubeGallery
+                  videos={videos}
+                  coupleId={coupleId!}
+                  onVideoAdded={() => coupleId && fetchVideos(coupleId)}
+                  onVideoDeleted={() => coupleId && fetchVideos(coupleId)}
+                  isLoading={loadingVideos}
+                />
+              </section>
 
               {/* Spotify Music Theme */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-slate-700">
-                <SpotifyGallery 
-                  coupleId={coupleId!} 
+                <SpotifyGallery
+                  coupleId={coupleId!}
                   isAdmin={true}
                   onTrackAdded={() => {}}
                   onTrackDeleted={() => {}}
@@ -559,15 +565,17 @@ export default function Home() {
                   Crie Seu Perfil de Casal
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Comece sua jornada juntos criando um perfil de casal. Adicione a data de início do relacionamento, o nome do casal e comece a compartilhar memórias!
-            </p>
-            <Button
-              onClick={() => setLocation("/create-couple")}
-              size="lg"
+                  Comece sua jornada juntos criando um perfil de casal. Adicione
+                  a data de início do relacionamento, o nome do casal e comece a
+                  compartilhar memórias!
+                </p>
+                <Button
+                  onClick={() => setLocation("/create-couple")}
+                  size="lg"
                   className="w-full bg-rose-500 hover:bg-rose-600 h-12 text-lg"
-            >
+                >
                   Criar Perfil de Casal 💕
-            </Button>
+                </Button>
               </div>
             </div>
           </div>

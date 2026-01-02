@@ -285,7 +285,7 @@ export default function CouplePage() {
                   fill="currentColor"
                 />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossas memórias ❤️
+                  Nossas memórias
                 </h3>
                 <Heart
                   className="text-rose-500 ml-2"
@@ -487,7 +487,7 @@ export default function CouplePage() {
                   fill="currentColor"
                 />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossa trilha sonora ❤️
+                  Nossa trilha sonora
                 </h3>
                 <Heart
                   className="text-rose-500 ml-2"
