@@ -12,6 +12,20 @@ import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2 } from "lucide-re
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 
+// Helper function to format date as local (avoiding timezone issues)
+function formatLocalDate(dateString: string, options?: { month?: 'short' | 'long' }): string {
+  // Parse date as YYYY-MM-DD (local date, not UTC)
+  const dateStr = dateString.split('T')[0]; // Get only YYYY-MM-DD part
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const localDate = new Date(year, month - 1, day, 0, 0, 0, 0); // Local midnight
+  
+  return localDate.toLocaleDateString('pt-BR', { 
+    day: 'numeric', 
+    month: options?.month || 'short',
+    year: 'numeric' 
+  });
+}
+
 interface Photo {
   id: string;
   s3_url: string;
@@ -367,10 +381,7 @@ export default function Home() {
                   
                   <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow border border-rose-200 dark:border-rose-800">
                     <div className="text-lg font-bold text-rose-600 dark:text-rose-400 mb-1">
-                      {new Date(couple.relationship_start_date).toLocaleDateString('pt-BR', { 
-                        day: '2-digit', 
-                        month: 'short' 
-                      })}
+                      {formatLocalDate(couple.relationship_start_date, { month: 'long' })}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                       Início
