@@ -69,7 +69,7 @@ export default function CouplePage() {
       setPhotos(data || []);
     } catch (error) {
       console.error("Error loading photos:", error);
-      toast.error("Failed to load photos");
+      toast.error("Falha ao carregar fotos");
     } finally {
       setLoadingPhotos(false);
     }
@@ -88,7 +88,7 @@ export default function CouplePage() {
       setVideos(data || []);
     } catch (error) {
       console.error("Error loading videos:", error);
-      toast.error("Failed to load videos");
+      toast.error("Falha ao carregar vídeos");
     } finally {
       setLoadingVideos(false);
     }
@@ -167,7 +167,7 @@ export default function CouplePage() {
       <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading couple profile...</p>
+          <p className="text-gray-600 dark:text-gray-400">Carregando perfil do casal...</p>
         </div>
       </div>
     );
@@ -178,7 +178,7 @@ export default function CouplePage() {
       <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center py-12">
           <Heart className="text-rose-300 mx-auto mb-4" size={64} />
-          <p className="text-xl text-gray-600 dark:text-gray-400">Couple not found</p>
+          <p className="text-xl text-gray-600 dark:text-gray-400">Casal não encontrado</p>
         </div>
       </div>
     );
@@ -208,7 +208,7 @@ export default function CouplePage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {couple.couple_name || "Couple Moments"}
+                  {couple.couple_name || "Momentos do Casal"}
                 </h1>
                 <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
                   Nosso Espaço Romântico

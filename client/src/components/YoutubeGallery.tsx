@@ -50,7 +50,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
   const handleAddVideo = useCallback(async () => {
     const videoId = extractVideoId(youtubeUrl);
     if (!videoId) {
-      toast.error("Invalid YouTube URL or Video ID");
+      toast.error("URL do YouTube ou ID do vídeo inválido");
       return;
     }
 
@@ -62,7 +62,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error("You must be logged in to add videos");
+        toast.error("Você precisa estar logado para adicionar vídeos");
         return;
       }
 
@@ -88,14 +88,14 @@ export const YoutubeGallery = memo(function YoutubeGallery({
 
       console.log("[DEBUG] Video saved:", data);
 
-      toast.success("Video added successfully!");
+      toast.success("Vídeo adicionado com sucesso!");
       setYoutubeUrl("");
       setVideoTitle("");
       setShowInput(false);
       onVideoAdded?.();
     } catch (error) {
       console.error("[DEBUG] Add video error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to add video");
+      toast.error(error instanceof Error ? error.message : "Falha ao adicionar vídeo");
     } finally {
       setAdding(false);
     }
@@ -118,11 +118,11 @@ export const YoutubeGallery = memo(function YoutubeGallery({
         throw error;
       }
 
-      toast.success("Video deleted successfully!");
+      toast.success("Vídeo deletado com sucesso!");
       onVideoDeleted?.();
     } catch (error) {
       console.error("[DEBUG] Delete video error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete video");
+      toast.error(error instanceof Error ? error.message : "Falha ao deletar vídeo");
     } finally {
       setDeleting(null);
     }
@@ -134,7 +134,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
         <div className="flex items-center">
           <Music className="text-rose-500 mr-2" size={24} />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Our Playlist
+            Nossa Playlist
           </h3>
         </div>
         <Button
@@ -142,7 +142,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
           variant="outline"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Video
+          Adicionar Vídeo
         </Button>
       </div>
 
@@ -150,7 +150,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
         <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border-2 border-rose-200 dark:border-rose-700 shadow-lg space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              YouTube URL or Video ID *
+              URL do YouTube ou ID do Vídeo *
             </label>
             <Input
               placeholder="https://www.youtube.com/watch?v=..."
@@ -163,10 +163,10 @@ export const YoutubeGallery = memo(function YoutubeGallery({
           
           <div>
             <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Title / Description
+              Título / Descrição
             </label>
             <Input
-              placeholder="Ex: Our favorite song 🎵"
+              placeholder="Ex: Nossa música favorita 🎵"
               value={videoTitle}
               onChange={(e) => setVideoTitle(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleAddVideo()}
@@ -174,7 +174,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
               className="bg-white dark:bg-slate-900 border-rose-300 dark:border-rose-600 focus:border-rose-500 dark:focus:border-rose-400"
             />
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Add a special title to this memory
+              Adicione um título especial para esta memória
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
               variant="outline"
               className="flex-1"
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               onClick={handleAddVideo}
@@ -198,10 +198,10 @@ export const YoutubeGallery = memo(function YoutubeGallery({
               {adding ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Adding...
+                  Adicionando...
                 </>
               ) : (
-                "Add Video"
+                "Adicionar Vídeo"
               )}
             </Button>
           </div>
@@ -215,7 +215,7 @@ export const YoutubeGallery = memo(function YoutubeGallery({
       ) : videos.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600">
           <p className="text-gray-600 dark:text-gray-400">
-            No videos yet. Add your favorite songs or memories!
+            Ainda não há vídeos. Adicione suas músicas favoritas ou memórias!
           </p>
         </div>
       ) : (

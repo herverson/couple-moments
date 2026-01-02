@@ -20,9 +20,9 @@ export default function CreateCouple() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">Please sign in first</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Por favor, faça login primeiro</p>
           <Button onClick={() => setLocation("/")} variant="outline">
-            Go Back
+            Voltar
           </Button>
         </div>
       </div>
@@ -33,7 +33,7 @@ export default function CreateCouple() {
     e.preventDefault();
 
     if (!coupleName || !startDate) {
-      toast.error("Please fill in all fields");
+      toast.error("Por favor, preencha todos os campos");
       return;
     }
 
@@ -54,10 +54,10 @@ export default function CreateCouple() {
 
       if (error) throw error;
 
-      toast.success("Couple profile created! 💕");
+      toast.success("Perfil de casal criado! 💕");
       setLocation("/");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create couple");
+      toast.error(error instanceof Error ? error.message : "Falha ao criar casal");
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export default function CreateCouple() {
     e.preventDefault();
 
     if (!partnerEmail) {
-      toast.error("Please enter your partner's email");
+      toast.error("Por favor, insira o e-mail do seu parceiro");
       return;
     }
 
@@ -76,10 +76,10 @@ export default function CreateCouple() {
 
       // In a real app, this would send an invite email
       // For now, just show a message
-      toast.success("Invite sent! Your partner will receive an email.");
+      toast.success("Convite enviado! Seu parceiro receberá um e-mail.");
       setPartnerEmail("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to send invite");
+      toast.error(error instanceof Error ? error.message : "Falha ao enviar convite");
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export default function CreateCouple() {
           <div className="flex items-center">
             <Heart className="text-rose-500 mr-2" size={32} />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Couple Moments
+              Momentos do Casal
             </h1>
           </div>
         </div>
@@ -113,10 +113,10 @@ export default function CreateCouple() {
           {/* Title */}
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Create Your Couple Profile
+              Crie Seu Perfil de Casal
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Start your journey together
+              Comece sua jornada juntos
             </p>
           </div>
 
@@ -127,14 +127,14 @@ export default function CreateCouple() {
               onClick={() => setMode("create")}
               className="w-40"
             >
-              Create Profile
+              Criar Perfil
             </Button>
             <Button
               variant={mode === "invite" ? "default" : "outline"}
               onClick={() => setMode("invite")}
               className="w-40"
             >
-              Invite Partner
+              Convidar Parceiro
             </Button>
           </div>
 
@@ -145,11 +145,11 @@ export default function CreateCouple() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Couple Name
+                      Nome do Casal
                     </label>
                     <Input
                       type="text"
-                      placeholder="e.g., John & Sarah"
+                      placeholder="Ex: João & Maria"
                       value={coupleName}
                       onChange={(e) => setCoupleName(e.target.value)}
                       className="w-full"
@@ -158,7 +158,7 @@ export default function CreateCouple() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Relationship Start Date
+                      Data de Início do Relacionamento
                     </label>
                     <Input
                       type="date"
@@ -169,7 +169,7 @@ export default function CreateCouple() {
                   </div>
 
                   <p className="text-sm text-gray-600 dark:text-gray-400 bg-rose-50 dark:bg-rose-950 p-3 rounded">
-                    💡 You can invite your partner later. For now, you can start adding memories!
+                    💡 Você pode convidar seu parceiro depois. Por enquanto, você pode começar a adicionar memórias!
                   </p>
                 </div>
               </div>
@@ -182,10 +182,10 @@ export default function CreateCouple() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    Criando...
                   </>
                 ) : (
-                  "Create Couple Profile"
+                  "Criar Perfil de Casal"
                 )}
               </Button>
             </form>
@@ -198,11 +198,11 @@ export default function CreateCouple() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Partner's Email
+                      E-mail do Parceiro
                     </label>
                     <Input
                       type="email"
-                      placeholder="partner@example.com"
+                      placeholder="parceiro@exemplo.com"
                       value={partnerEmail}
                       onChange={(e) => setPartnerEmail(e.target.value)}
                       className="w-full"
@@ -210,7 +210,7 @@ export default function CreateCouple() {
                   </div>
 
                   <p className="text-sm text-gray-600 dark:text-gray-400 bg-rose-50 dark:bg-rose-950 p-3 rounded">
-                    📧 Your partner will receive an invitation to join your couple profile.
+                    📧 Seu parceiro receberá um convite para participar do seu perfil de casal.
                   </p>
                 </div>
               </div>
@@ -223,10 +223,10 @@ export default function CreateCouple() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
+                    Enviando...
                   </>
                 ) : (
-                  "Send Invite"
+                  "Enviar Convite"
                 )}
               </Button>
             </form>

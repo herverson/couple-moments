@@ -57,7 +57,7 @@ export default function Home() {
       if (error) throw error;
       setPhotos(data || []);
     } catch (error) {
-      toast.error("Failed to load photos");
+      toast.error("Falha ao carregar fotos");
     } finally {
       setLoadingPhotos(false);
     }
@@ -75,7 +75,7 @@ export default function Home() {
       if (error) throw error;
       setVideos(data || []);
     } catch (error) {
-      toast.error("Failed to load videos");
+      toast.error("Falha ao carregar vídeos");
     } finally {
       setLoadingVideos(false);
     }
@@ -111,7 +111,7 @@ export default function Home() {
         }
       } catch (error) {
         console.error("Error fetching couple:", error);
-        toast.error("Failed to load couple profile");
+        toast.error("Falha ao carregar perfil do casal");
       }
     };
 
@@ -127,12 +127,12 @@ export default function Home() {
     e.preventDefault();
     
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      toast.error("Por favor, preencha todos os campos");
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("A senha deve ter pelo menos 6 caracteres");
       return;
     }
 
@@ -147,7 +147,7 @@ export default function Home() {
         });
 
         if (error) throw error;
-        toast.success("Welcome back!");
+        toast.success("Bem-vindo de volta!");
       } else {
         // Sign up
         const { error } = await supabase.auth.signUp({
@@ -156,10 +156,10 @@ export default function Home() {
         });
 
         if (error) throw error;
-        toast.success("Account created! Please check your email to confirm.");
+        toast.success("Conta criada! Por favor, verifique seu e-mail para confirmar.");
       }
     } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
+      toast.error(error.message || "Falha na autenticação");
     } finally {
       setIsLoading(false);
     }
@@ -177,25 +177,25 @@ export default function Home() {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            Celebrate your love story together
+            Celebre sua história de amor juntos
           </p>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-rose-200 dark:border-rose-800">
             <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
-              {isLogin ? "Welcome Back" : "Create Account"}
+              {isLogin ? "Bem-vindo de volta" : "Criar Conta"}
             </h2>
 
             <form onSubmit={handleEmailAuth} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email
+                  E-mail
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <Input
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="Seu email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -206,13 +206,13 @@ export default function Home() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
+                  Senha
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <Input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
@@ -222,7 +222,7 @@ export default function Home() {
                 </div>
                 {!isLogin && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Minimum 6 characters
+                    Mínimo de 6 caracteres
                   </p>
                 )}
               </div>
@@ -233,7 +233,7 @@ export default function Home() {
             size="lg"
                 disabled={isLoading}
           >
-                {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
+                {isLoading ? "Aguarde..." : (isLogin ? "Entrar" : "Criar Conta")}
           </Button>
             </form>
 
@@ -242,7 +242,7 @@ export default function Home() {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300"
               >
-                {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Entrar"}
               </button>
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function Home() {
         {coupleLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading your couple profile...</p>
+            <p className="text-gray-600 dark:text-gray-400">Carregando seu perfil de casal...</p>
           </div>
         ) : couple ? (
           <div className="space-y-8">
@@ -444,17 +444,17 @@ export default function Home() {
                   <Heart className="text-rose-500 w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Create Your Couple Profile
+                  Crie Seu Perfil de Casal
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Start your journey together by creating a couple profile. Add your relationship start date, couple name, and begin sharing memories!
+                  Comece sua jornada juntos criando um perfil de casal. Adicione a data de início do relacionamento, o nome do casal e comece a compartilhar memórias!
             </p>
             <Button
               onClick={() => setLocation("/create-couple")}
               size="lg"
                   className="w-full bg-rose-500 hover:bg-rose-600 h-12 text-lg"
             >
-                  Create Couple Profile 💕
+                  Criar Perfil de Casal 💕
             </Button>
               </div>
             </div>

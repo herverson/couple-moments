@@ -74,7 +74,7 @@ export const PhotoGallery = memo(function PhotoGallery({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error("You must be logged in to upload photos");
+        toast.error("Você precisa estar logado para enviar fotos");
         return;
       }
 
@@ -126,7 +126,7 @@ export const PhotoGallery = memo(function PhotoGallery({
 
       console.log("[DEBUG] Photo saved to database:", photoData);
 
-      toast.success("Photo uploaded successfully!");
+      toast.success("Foto enviada com sucesso!");
       setShowDialog(false);
       setSelectedFile(null);
       setDescription("");
@@ -134,7 +134,7 @@ export const PhotoGallery = memo(function PhotoGallery({
       onPhotoAdded?.();
     } catch (error) {
       console.error("[DEBUG] Upload error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to upload photo");
+      toast.error(error instanceof Error ? error.message : "Falha ao enviar foto");
     } finally {
       setUploading(false);
     }
@@ -190,7 +190,7 @@ export const PhotoGallery = memo(function PhotoGallery({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Photo Gallery</h3>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Galeria de Fotos</h3>
         
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
@@ -209,7 +209,7 @@ export const PhotoGallery = memo(function PhotoGallery({
               >
                 <span>
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload Photo
+                  Enviar Foto
                 </span>
               </Button>
             </label>
@@ -218,7 +218,7 @@ export const PhotoGallery = memo(function PhotoGallery({
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                Upload Photo 📸
+                Enviar Foto 📸
               </DialogTitle>
             </DialogHeader>
             
@@ -276,7 +276,7 @@ export const PhotoGallery = memo(function PhotoGallery({
                   variant="outline"
                   className="flex-1"
                 >
-                  Cancel
+                  Cancelar
                 </Button>
                 <Button
                   onClick={handlePhotoUpload}
@@ -286,10 +286,10 @@ export const PhotoGallery = memo(function PhotoGallery({
                   {uploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      Enviando...
                     </>
                   ) : (
-                    "Upload Photo"
+                    "Enviar Foto"
                   )}
                 </Button>
               </div>
@@ -304,7 +304,7 @@ export const PhotoGallery = memo(function PhotoGallery({
         </div>
       ) : photos.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600">
-          <p className="text-gray-600 dark:text-gray-400">No photos yet. Upload your first memory!</p>
+          <p className="text-gray-600 dark:text-gray-400">Ainda não há fotos. Envie sua primeira memória!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
