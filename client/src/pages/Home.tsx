@@ -8,7 +8,7 @@ import { CoupleMemories } from "@/components/CoupleMemories";
 import { SpotifyGallery } from "@/components/SpotifyGallery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2 } from "lucide-react";
+import { Heart, LogOut, Mail, Lock, Eye, User, Settings, Link2, Pencil, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
 
@@ -52,6 +52,9 @@ export default function Home() {
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [, setLocation] = useLocation();
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedCoupleName, setEditedCoupleName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
 
   // Login/Signup state
   const [email, setEmail] = useState("");
@@ -136,6 +139,51 @@ export default function Home() {
     await signOut();
     setLocation("/");
   }, [signOut, setLocation]);
+
+  const handleStartEditName = useCallback(() => {
+    setEditedCoupleName(couple?.couple_name || "");
+    setIsEditingName(true);
+  }, [couple]);
+
+  const handleCancelEditName = useCallback(() => {
+    setIsEditingName(false);
+    setEditedCoupleName("");
+  }, []);
+
+  const handleSaveCoupleName = useCallback(async () => {
+    if (!coupleId || !couple) return;
+
+    try {
+      setIsUpdatingName(true);
+      const { error } = await supabase
+        .from("couples")
+        .update({ couple_name: editedCoupleName.trim() || null })
+        .eq("id", coupleId);
+
+      if (error) throw error;
+
+      toast.success("Nome do casal atualizado com sucesso! 💕");
+      setIsEditingName(false);
+      
+      // Recarregar os dados do casal
+      const { data: updatedCouple, error: fetchError } = await supabase
+        .from("couples")
+        .select("*")
+        .eq("id", coupleId)
+        .single();
+
+      if (!fetchError && updatedCouple) {
+        // Atualizar o estado local através do hook useCouple
+        // Como o hook depende de coupleId, precisamos forçar um reload
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error updating couple name:", error);
+      toast.error(error instanceof Error ? error.message : "Falha ao atualizar nome do casal");
+    } finally {
+      setIsUpdatingName(false);
+    }
+  }, [coupleId, couple, editedCoupleName]);
 
   const handleEmailAuth = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -350,14 +398,67 @@ export default function Home() {
                   <Heart className="text-white w-10 h-10" fill="white" />
                 </div>
                 
-                <div>
-                  <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    {couple.couple_name || "Bia & Herver"}
-              </h2>
+                <div className="w-full max-w-2xl mx-auto">
+                  {isEditingName ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-3 justify-center mb-2">
+                      <Input
+                        type="text"
+                        value={editedCoupleName}
+                        onChange={(e) => setEditedCoupleName(e.target.value)}
+                        placeholder="Nome do casal"
+                        className="text-2xl sm:text-4xl font-bold text-center bg-white dark:bg-slate-800 border-2 border-rose-500 py-2 px-4"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleSaveCoupleName();
+                          } else if (e.key === "Escape") {
+                            handleCancelEditName();
+                          }
+                        }}
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleSaveCoupleName}
+                          disabled={isUpdatingName}
+                          className="bg-green-500 hover:bg-green-600 text-white"
+                        >
+                          {isUpdatingName ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelEditName}
+                          disabled={isUpdatingName}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 justify-center mb-2 group">
+                      <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                        {couple.couple_name || "Bia & Herver"}
+                      </h2>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleStartEditName}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-100 dark:hover:bg-rose-900"
+                        title="Editar nome do casal"
+                      >
+                        <Pencil className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                      </Button>
+                    </div>
+                  )}
                   <p className="text-lg text-gray-700 dark:text-gray-300">
                     Gerencie seu espaço romântico
-              </p>
-            </div>
+                  </p>
+                </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-4">
