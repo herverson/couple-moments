@@ -81,11 +81,29 @@ export default function CouplePage() {
       const { data, error } = await supabase
         .from("youtube_videos")
         .select("*")
-        .eq("couple_id", cId)
-        .order("added_at", { ascending: false });
+        .eq("couple_id", cId);
 
       if (error) throw error;
-      setVideos(data || []);
+      
+      // Sort manually to ensure correct order
+      // First by sort_order (if exists), then by added_at
+      const sorted = (data || []).sort((a: any, b: any) => {
+        // If both have sort_order, use it
+        if (a.sort_order != null && b.sort_order != null) {
+          return a.sort_order - b.sort_order;
+        }
+        // If only one has sort_order, prioritize it
+        if (a.sort_order != null && b.sort_order == null) {
+          return -1;
+        }
+        if (a.sort_order == null && b.sort_order != null) {
+          return 1;
+        }
+        // If neither has sort_order, use added_at
+        return new Date(b.added_at).getTime() - new Date(a.added_at).getTime();
+      });
+      
+      setVideos(sorted);
     } catch (error) {
       console.error("Error loading videos:", error);
       toast.error("Falha ao carregar vídeos");
@@ -226,13 +244,13 @@ export default function CouplePage() {
                 <Share2 className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Compartilhar</span>
               </Button>
-              
+
               {isOwner && user && (
                 <>
                   <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-950 rounded-lg border border-rose-200 dark:border-rose-800">
                     <User className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {user.email?.split('@')[0]}
+                      {user.email?.split("@")[0]}
                     </span>
                   </div>
                   <Button
@@ -254,39 +272,20 @@ export default function CouplePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="space-y-12">
-          {/* Modern Welcome Banner */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950 dark:to-pink-950 rounded-3xl shadow-xl p-12 border-2 border-rose-300 dark:border-rose-700">
-            {/* Decorative background */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-rose-200 dark:bg-rose-900 rounded-full blur-3xl opacity-30 -mr-48 -mt-48"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-200 dark:bg-pink-900 rounded-full blur-3xl opacity-30 -ml-48 -mb-48"></div>
-            
-            <div className="relative text-center space-y-4">
-              <div className="inline-flex items-center justify-center gap-3 mb-4">
-                <Heart className="text-rose-500" size={40} fill="currentColor" />
-                <h2 className="text-5xl font-bold text-gray-900 dark:text-white">
-                  {couple.couple_name || "Bem-vindos"}
-                </h2>
-                <Heart className="text-rose-500" size={40} fill="currentColor" />
-              </div>
-              <p className="text-2xl text-gray-700 dark:text-gray-300 font-light">
-                Seu espaço privado para celebrar o amor 💕
-              </p>
-            </div>
-          </div>
-
-          {/* Relationship Timer */}
-          <section>
-            <RelationshipTimer startDate={couple.relationship_start_date} />
-          </section>
-
           {/* Spotify Music Theme */}
           <section>
-            <SpotifyGallery 
-              coupleId={couple.id} 
+            <SpotifyGallery
+              coupleId={couple.id}
               isAdmin={isOwner}
               onTrackAdded={() => {}}
               onTrackDeleted={() => {}}
             />
+          </section>
+          {/* Modern Welcome Banner */}
+
+          {/* Relationship Timer */}
+          <section>
+            <RelationshipTimer startDate={couple.relationship_start_date} />
           </section>
 
           {/* Couple Memories / Memorable Phrases */}
@@ -298,23 +297,40 @@ export default function CouplePage() {
           <section>
             <div className="space-y-8">
               <div className="flex items-center justify-center">
-                <Heart className="text-rose-500 mr-2" size={32} fill="currentColor" />
+                <Heart
+                  className="text-rose-500 mr-2"
+                  size={32}
+                  fill="currentColor"
+                />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossas memórias ❤️
+                  Nossas memórias
                 </h3>
-                <Heart className="text-rose-500 ml-2" size={32} fill="currentColor" />
+                <Heart
+                  className="text-rose-500 ml-2"
+                  size={32}
+                  fill="currentColor"
+                />
               </div>
 
               {loadingPhotos ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600 dark:text-gray-400">Carregando memórias...</p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Carregando memórias...
+                  </p>
                 </div>
               ) : photos.length === 0 ? (
                 <div className="text-center py-16 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950 dark:to-pink-950 rounded-2xl border-2 border-dashed border-rose-300 dark:border-rose-700">
-                  <Heart className="mx-auto text-rose-300 dark:text-rose-700 mb-4" size={64} />
-                  <p className="text-xl text-gray-600 dark:text-gray-400">Nenhuma foto ainda</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Suas memórias aparecerão aqui</p>
+                  <Heart
+                    className="mx-auto text-rose-300 dark:text-rose-700 mb-4"
+                    size={64}
+                  />
+                  <p className="text-xl text-gray-600 dark:text-gray-400">
+                    Nenhuma foto ainda
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                    Suas memórias aparecerão aqui
+                  </p>
                 </div>
               ) : (
                 <>
@@ -331,7 +347,11 @@ export default function CouplePage() {
                             >
                               <div
                                 className={`h-full bg-white rounded-full transition-all duration-300 ${
-                                  index === currentPhotoIndex ? 'w-full' : index < currentPhotoIndex ? 'w-full' : 'w-0'
+                                  index === currentPhotoIndex
+                                    ? "w-full"
+                                    : index < currentPhotoIndex
+                                      ? "w-full"
+                                      : "w-0"
                                 }`}
                               />
                             </div>
@@ -343,10 +363,13 @@ export default function CouplePage() {
                       <div className="relative w-full aspect-[9/16] max-h-[70vh] bg-gradient-to-b from-black/50 to-black">
                         <img
                           src={photos[currentPhotoIndex].s3_url}
-                          alt={photos[currentPhotoIndex].description || "Foto do casal"}
+                          alt={
+                            photos[currentPhotoIndex].description ||
+                            "Foto do casal"
+                          }
                           className="w-full h-full object-cover pointer-events-none"
                         />
-                        
+
                         {/* Gradient Overlay for Text */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
 
@@ -356,7 +379,11 @@ export default function CouplePage() {
                           <div className="flex items-center justify-between pt-8">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                                <Heart className="text-white" size={20} fill="white" />
+                                <Heart
+                                  className="text-white"
+                                  size={20}
+                                  fill="white"
+                                />
                               </div>
                               <div>
                                 <p className="text-white font-bold text-lg drop-shadow-lg">
@@ -364,9 +391,12 @@ export default function CouplePage() {
                                 </p>
                                 <p className="text-white/80 text-sm drop-shadow-lg">
                                   {photos[currentPhotoIndex].photo_date
-                                    ? formatLocalDate(photos[currentPhotoIndex].photo_date)
-                                    : formatLocalDate(photos[currentPhotoIndex].uploaded_at)
-                                  }
+                                    ? formatLocalDate(
+                                        photos[currentPhotoIndex].photo_date
+                                      )
+                                    : formatLocalDate(
+                                        photos[currentPhotoIndex].uploaded_at
+                                      )}
                                 </p>
                               </div>
                             </div>
@@ -436,9 +466,9 @@ export default function CouplePage() {
                             key={photo.id}
                             onClick={() => setCurrentPhotoIndex(index)}
                             className={`relative aspect-square rounded-xl overflow-hidden transition-all hover:scale-105 hover:shadow-xl ${
-                              index === currentPhotoIndex 
-                                ? 'ring-4 ring-rose-500 shadow-xl scale-105' 
-                                : 'ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-rose-300'
+                              index === currentPhotoIndex
+                                ? "ring-4 ring-rose-500 shadow-xl scale-105"
+                                : "ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-rose-300"
                             }`}
                           >
                             <img
@@ -449,7 +479,10 @@ export default function CouplePage() {
                             />
                             {index === currentPhotoIndex && (
                               <div className="absolute inset-0 bg-rose-500/20 flex items-center justify-center">
-                                <Heart className="text-white w-8 h-8" fill="white" />
+                                <Heart
+                                  className="text-white w-8 h-8"
+                                  fill="white"
+                                />
                               </div>
                             )}
                           </button>
@@ -466,23 +499,40 @@ export default function CouplePage() {
           <section>
             <div className="space-y-8">
               <div className="flex items-center justify-center">
-                <Heart className="text-rose-500 mr-2" size={32} fill="currentColor" />
+                <Heart
+                  className="text-rose-500 mr-2"
+                  size={32}
+                  fill="currentColor"
+                />
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  ❤️ Nossa trilha sonora ❤️
+                  Nossa trilha sonora
                 </h3>
-                <Heart className="text-rose-500 ml-2" size={32} fill="currentColor" />
+                <Heart
+                  className="text-rose-500 ml-2"
+                  size={32}
+                  fill="currentColor"
+                />
               </div>
 
               {loadingVideos ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600 dark:text-gray-400">Carregando playlist...</p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Carregando playlist...
+                  </p>
                 </div>
               ) : videos.length === 0 ? (
                 <div className="text-center py-16 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950 dark:to-pink-950 rounded-2xl border-2 border-dashed border-rose-300 dark:border-rose-700">
-                  <Heart className="mx-auto text-rose-300 dark:text-rose-700 mb-4" size={64} />
-                  <p className="text-xl text-gray-600 dark:text-gray-400">Nenhum vídeo ainda</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Sua trilha sonora aparecerá aqui</p>
+                  <Heart
+                    className="mx-auto text-rose-300 dark:text-rose-700 mb-4"
+                    size={64}
+                  />
+                  <p className="text-xl text-gray-600 dark:text-gray-400">
+                    Nenhum vídeo ainda
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                    Sua trilha sonora aparecerá aqui
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -501,13 +551,15 @@ export default function CouplePage() {
                         <iframe
                           className="absolute inset-0 w-full h-full"
                           src={`https://www.youtube.com/embed/${video.video_id}`}
-                          title={video.title || video.description || "YouTube video"}
+                          title={
+                            video.title || video.description || "YouTube video"
+                          }
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           loading="lazy"
                         />
                       </div>
-                      
+
                       {/* Video Info */}
                       <div className="p-6 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-slate-800 dark:to-slate-900">
                         {(video.description || video.title) && (
@@ -517,11 +569,9 @@ export default function CouplePage() {
                         )}
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600 dark:text-gray-400">
-                            {formatLocalDate(video.added_at, { month: 'long' })}
+                            {formatLocalDate(video.added_at, { month: "long" })}
                           </span>
-                          <span className="text-rose-500 font-medium">
-                            ♫
-                          </span>
+                          <span className="text-rose-500 font-medium">♫</span>
                         </div>
                       </div>
                     </div>

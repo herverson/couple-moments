@@ -63,7 +63,7 @@ export const RelationshipTimer = memo(function RelationshipTimer({ startDate }: 
     <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950 dark:to-pink-950 rounded-2xl p-8 border border-rose-200 dark:border-rose-800">
       <div className="flex items-center justify-center mb-6">
         <Heart className="text-rose-500 mr-2" size={28} />
-        <h2 className="text-2xl font-bold text-rose-700 dark:text-rose-300">Nossa Jornada</h2>
+        <h2 className="text-2xl font-bold text-rose-700 dark:text-rose-300">Nossa jornada</h2>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
