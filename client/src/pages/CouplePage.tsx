@@ -81,11 +81,29 @@ export default function CouplePage() {
       const { data, error } = await supabase
         .from("youtube_videos")
         .select("*")
-        .eq("couple_id", cId)
-        .order("added_at", { ascending: false });
+        .eq("couple_id", cId);
 
       if (error) throw error;
-      setVideos(data || []);
+      
+      // Sort manually to ensure correct order
+      // First by sort_order (if exists), then by added_at
+      const sorted = (data || []).sort((a: any, b: any) => {
+        // If both have sort_order, use it
+        if (a.sort_order != null && b.sort_order != null) {
+          return a.sort_order - b.sort_order;
+        }
+        // If only one has sort_order, prioritize it
+        if (a.sort_order != null && b.sort_order == null) {
+          return -1;
+        }
+        if (a.sort_order == null && b.sort_order != null) {
+          return 1;
+        }
+        // If neither has sort_order, use added_at
+        return new Date(b.added_at).getTime() - new Date(a.added_at).getTime();
+      });
+      
+      setVideos(sorted);
     } catch (error) {
       console.error("Error loading videos:", error);
       toast.error("Falha ao carregar vídeos");

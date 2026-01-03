@@ -86,11 +86,64 @@ export default function Home() {
       const { data, error } = await supabase
         .from("youtube_videos")
         .select("*")
-        .eq("couple_id", cId)
-        .order("added_at", { ascending: false });
+        .eq("couple_id", cId);
 
       if (error) throw error;
-      setVideos(data || []);
+      
+      // Log raw data to see if sort_order is being returned
+      const rawVideos = data || [];
+      console.log("[DEBUG] Raw videos from database (count:", rawVideos.length, "):", 
+        rawVideos.map((v: any) => ({ 
+          id: v.id, 
+          sort_order: v.sort_order, 
+          has_sort_order: 'sort_order' in v,
+          title: v.title || v.description || 'No title'
+        }))
+      );
+      
+      // Check if sort_order column exists in the data
+      const hasSortOrderColumn = rawVideos.length > 0 && rawVideos.some((v: any) => 'sort_order' in v);
+      if (!hasSortOrderColumn && rawVideos.length > 0) {
+        console.warn("[DEBUG] WARNING: sort_order column not found in database results! Execute add-sort-order-to-videos.sql");
+      }
+      
+      // Sort manually to ensure correct order
+      // First by sort_order (if exists), then by added_at
+      const sorted = [...rawVideos].sort((a: any, b: any) => {
+        // If both have sort_order, use it
+        if (a.sort_order != null && b.sort_order != null) {
+          return a.sort_order - b.sort_order;
+        }
+        // If only one has sort_order, prioritize it
+        if (a.sort_order != null && b.sort_order == null) {
+          return -1;
+        }
+        if (a.sort_order == null && b.sort_order != null) {
+          return 1;
+        }
+        // If neither has sort_order, use added_at
+        return new Date(b.added_at).getTime() - new Date(a.added_at).getTime();
+      });
+      
+      console.log("[DEBUG] Sorted videos:", sorted.map((v: any) => ({ 
+        id: v.id, 
+        sort_order: v.sort_order, 
+        title: v.title || v.description || 'No title'
+      })));
+      
+      // Only update if videos actually changed
+      if (videos.length !== sorted.length) {
+        setVideos(sorted);
+      } else {
+        const currentVideoIds = videos.map(v => v.id).join(',');
+        const newVideoIds = sorted.map((v: any) => v.id).join(',');
+        const currentOrders = videos.map(v => (v as any).sort_order ?? 'null').join(',');
+        const newOrders = sorted.map((v: any) => (v.sort_order ?? 'null')).join(',');
+        
+        if (currentVideoIds !== newVideoIds || currentOrders !== newOrders) {
+          setVideos(sorted);
+        }
+      }
     } catch (error) {
       toast.error("Falha ao carregar vídeos");
     } finally {
